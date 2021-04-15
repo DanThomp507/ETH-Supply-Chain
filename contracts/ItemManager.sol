@@ -1,8 +1,9 @@
 pragma solidity ^0.6.0;
 
 import "./Item.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ItemManager {
+contract ItemManager is Ownable {
     struct S_Item {
         Item _item;
         ItemManager.SupplyChainSteps _step;
@@ -15,7 +16,10 @@ contract ItemManager {
 
     event SupplyChainStep(uint256 _itemIndex, uint256 _step, address _address);
 
-    function createItem(string memory _identifier, uint256 _priceInWei) public {
+    function createItem(string memory _identifier, uint256 _priceInWei)
+        public
+        onlyOwner
+    {
         Item item = new Item(this, _priceInWei, index);
         items[index]._item = item;
         items[index]._step = SupplyChainSteps.Created;
@@ -43,7 +47,7 @@ contract ItemManager {
         );
     }
 
-    function triggerDelivery(uint256 _index) public {
+    function triggerDelivery(uint256 _index) public onlyOwner {
         require(
             items[_index]._step == SupplyChainSteps.Paid,
             "Item is further in the supply chain"
